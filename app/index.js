@@ -1,18 +1,32 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const btn = document.getElementById('run');
+    const btnOpen = document.getElementById('run');
+    const btnStop = document.getElementById('stop');
+    const status = document.getElementById('status');
+    btnStop.setAttribute('disabled', true);
+    status.innerText = 'Disconnected';
     const input = document.getElementsByTagName('input')[0];
     let websocket;
 
     function startApp() {
 
-        btn.addEventListener('click', async () => {
+        btnOpen.addEventListener('click', async () => {
             try {
                 await createWebSocket();
-                btn.setAttribute('disabled', true)
+                btnOpen.setAttribute('disabled', true);
+                btnStop.removeAttribute('disabled');
+                status.innerText = 'Connected';
+                status.style.color = 'green';
             } catch {
                 alert('Try again!');
             }
+        });
+
+        btnStop.addEventListener('click', () => {
+            websocket.close(1000, 'Connection was closed');
+            status.innerText = 'Disconnected';
+            status.style.color = 'red';
         })
+
     }
 
     function createWebSocket() {
@@ -27,7 +41,8 @@ document.addEventListener('DOMContentLoaded', () => {
             function clearWebSocketData() {
                 websocket = undefined;
                 input.removeEventListener('input', listenToInput);
-                btn.removeAttribute('disabled');
+                btnOpen.removeAttribute('disabled');
+                btnStop.setAttribute('disabled', true);
             }
 
             websocket.onerror = function (e) {
